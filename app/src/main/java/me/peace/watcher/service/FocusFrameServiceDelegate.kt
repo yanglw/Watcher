@@ -70,7 +70,7 @@ class FocusFrameServiceDelegate : ServiceDelegate {
   private fun updateLocation(service: AccessibilityService) {
     if (!::view.isInitialized || !view.isAttachedToWindow ) return
     val rect = Rect()
-    service.rootInActiveWindow.findFocus(AccessibilityNodeInfo.FOCUS_INPUT)?.getBoundsInScreen(rect)
+    service.rootInActiveWindow?.findFocus(AccessibilityNodeInfo.FOCUS_INPUT)?.getBoundsInScreen(rect)
     if (rect == currentFocusRect) return
     currentFocusRect.set(rect)
     animator.cancel()
