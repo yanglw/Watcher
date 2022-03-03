@@ -46,9 +46,11 @@ class FocusFrameServiceDelegate : ServiceDelegate {
 
   override fun onServiceConnected(service: AccessibilityService) {
     super.onServiceConnected(service)
+    val context = service.applicationContext
     // 创建高亮 view
-    manager = service.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-    view = View(service)
+    manager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    view = View(context)
+    view.setWillNotDraw(false)
     view.setBackgroundResource(R.drawable.focus_frame_bg)
     params = WindowManager.LayoutParams()
     params.gravity = Gravity.TOP or Gravity.START
@@ -58,7 +60,7 @@ class FocusFrameServiceDelegate : ServiceDelegate {
     params.width = 0
     params.height = 0
     params.type = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY else WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
-    params.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+    params.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
     // 添加将高亮 view
     manager.addView(view, params)
     updateLocation(service)
