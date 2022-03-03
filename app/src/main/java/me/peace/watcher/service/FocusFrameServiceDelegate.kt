@@ -38,6 +38,7 @@ class FocusFrameServiceDelegate : ServiceDelegate {
       params.width = value.width()
       params.x = value.left
       params.y = value.top
+      view.visibility = if (value.isEmpty) View.GONE else View.VISIBLE
       manager.updateViewLayout(view, params)
     }
   }
