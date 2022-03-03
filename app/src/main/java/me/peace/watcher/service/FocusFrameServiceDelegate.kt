@@ -5,15 +5,14 @@ import android.animation.RectEvaluator
 import android.animation.ValueAnimator
 import android.content.Context
 import android.content.Intent
-import android.graphics.PixelFormat
-import android.graphics.Rect
+import android.graphics.*
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
-import me.peace.watcher.R
 
 /**
  * 高亮焦点控件。
@@ -23,7 +22,6 @@ class FocusFrameServiceDelegate : ServiceDelegate {
   /** 高亮 view 。 */
   private lateinit var view: View
   private lateinit var params: WindowManager.LayoutParams
-
   /** 动画执行过程中当前 [view] 的位置。 */
   private val animatorFocusRect = Rect()
   /** 当前 [view] 的目标位置。 */
@@ -52,7 +50,7 @@ class FocusFrameServiceDelegate : ServiceDelegate {
     manager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     view = View(context)
     view.setWillNotDraw(false)
-    view.setBackgroundResource(R.drawable.focus_frame_bg)
+    view.background = RainbowDrawable()
     params = WindowManager.LayoutParams()
     params.gravity = Gravity.TOP or Gravity.START
     params.format = PixelFormat.RGBA_8888
@@ -66,7 +64,6 @@ class FocusFrameServiceDelegate : ServiceDelegate {
     manager.addView(view, params)
     updateLocation(service)
   }
-
   /**
    * 更新 [view] 的坐标位置。
    */
@@ -91,5 +88,32 @@ class FocusFrameServiceDelegate : ServiceDelegate {
     if (!::manager.isInitialized) return
     animator.cancel()
     manager.removeView(view)
+  }
+
+  class RainbowDrawable : Drawable() {
+    private val paint = Paint().apply { alpha = 0x66 }
+    private var linearGradient: LinearGradient? = null
+
+    override fun setAlpha(alpha: Int) {
+      paint.alpha = alpha
+    }
+
+    override fun setColorFilter(colorFilter: ColorFilter?) {
+      paint.colorFilter = colorFilter
+    }
+
+    override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
+
+    override fun onBoundsChange(bounds: Rect) {
+      linearGradient = LinearGradient(0f, 0f, 0f, bounds.height().toFloat(),
+        intArrayOf(0xffff0000.toInt(), 0xffffa500.toInt(), 0xffffff00.toInt(), 0xff008000.toInt(), 0xff00ffff.toInt(), 0xff0099ff.toInt(),  0xff9900ff.toInt()),
+        floatArrayOf(0.142857f, 0.285714f, 0.4285714f, 0.5714286f, 0.714286f, 0.857143f, 1f),
+        Shader.TileMode.CLAMP)
+      paint.shader = linearGradient
+    }
+
+    override fun draw(canvas: Canvas) {
+        canvas.drawRect(bounds, paint)
+    }
   }
 }
